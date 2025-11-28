@@ -15,7 +15,6 @@ app.get("/", (req, res) => {
 });
 
 // ===== ROTA PARA GERAR MÚSICA =====
-// O Google AI Studio vai chamar esta rota
 app.post("/generate-music", async (req, res) => {
   try {
     const { title, lyrics, style } = req.body;
@@ -26,18 +25,29 @@ app.post("/generate-music", async (req, res) => {
       });
     }
 
+    // ===== CRIANDO O PROMPT FINAL =====
+    const prompt = `
+Título da Música: ${title}
+
+Estilo desejado: ${style}
+
+Letra:
+${lyrics}
+
+Gere uma música completa com esse estilo, mantendo o ritmo,
+a emoção do texto e coerência musical.
+    `;
+
     // ===== CHAMADA PARA ELEVENLABS MUSIC =====
     const response = await axios.post(
       "https://api.elevenlabs.io/v1/music/generate",
       {
-        title,
-        lyrics,
-        style
+        prompt: prompt, // AQUI ESTÁ A MUDANÇA IMPORTANTE
       },
       {
         headers: {
           "Content-Type": "application/json",
-          "xi-api-key": process.env.ELEVENLABS_API_KEY
+          "xi-api-key": process.env.ELEVENLABS_API_KEY,
         },
       }
     );
@@ -55,11 +65,4 @@ app.post("/generate-music", async (req, res) => {
       error: error.response?.data || error.message,
     });
   }
-});
-
-// ===== PORTA =====
-const PORT = process.env.PORT || 3000;
-
-app.listen(PORT, () => {
-  console.log(`Servidor rodando na porta ${PORT}`);
 });

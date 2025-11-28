@@ -19,30 +19,31 @@ app.post("/generate-music", async (req, res) => {
   try {
     const { title, lyrics, style } = req.body;
 
+    // Verificação básica
     if (!title || !lyrics || !style) {
       return res.status(400).json({
         error: "Faltou enviar: title, lyrics ou style!",
       });
     }
 
-    // ===== CRIANDO O PROMPT FINAL =====
+    // ===== PROMPT FINAL PARA ELEVENLABS =====
     const prompt = `
-Título da Música: ${title}
+Título da música: ${title}
 
-Estilo desejado: ${style}
+Estilo musical desejado: ${style}
 
 Letra:
 ${lyrics}
 
-Gere uma música completa com esse estilo, mantendo o ritmo,
-a emoção do texto e coerência musical.
+Gere uma música completa seguindo a letra e o estilo mencionados.
+A música deve ter coerência, clima adequado ao estilo e estrutura musical sólida.
     `;
 
-    // ===== CHAMADA PARA ELEVENLABS MUSIC =====
+    // ===== CHAMADA PARA ELEVENLABS =====
     const response = await axios.post(
       "https://api.elevenlabs.io/v1/music/generate",
       {
-        prompt: prompt, // AQUI ESTÁ A MUDANÇA IMPORTANTE
+        prompt: prompt,
       },
       {
         headers: {
@@ -52,6 +53,7 @@ a emoção do texto e coerência musical.
       }
     );
 
+    // Retorna os dados da API
     return res.json({
       success: true,
       data: response.data,
@@ -66,3 +68,11 @@ a emoção do texto e coerência musical.
     });
   }
 });
+
+// ===== PORTA =====
+const PORT = process.env.PORT || 3000;
+
+app.listen(PORT, () => {
+  console.log(`Servidor rodando na porta ${PORT}`);
+});
+
